@@ -1,7 +1,9 @@
 create table product(
     id bigserial primary key,
     title varchar(255) not null,
-    price numeric(12,2) not null
+    price numeric(12,2) not null,
+    created_at timestamp default current_timestamp,
+    updated_at timestamp default current_timestamp
 );
 
 insert into product(title, price)
