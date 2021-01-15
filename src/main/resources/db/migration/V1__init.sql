@@ -25,4 +25,9 @@ values
 ('Palit RTX 3060', 57200),
 ('MSI RTX 3060ti', 63600),
 ('Gigabyte RTX 3070', 65200),
-('Gigabyte RTX 3080', 102000);
+('Gigabyte RTX 3080', 102000),
+('HDD 1TB', 4970),
+('HDD 3TB', 8700),
+('SSD 510GB', 3700),
+('SSD 1TB', 6200)
+;
