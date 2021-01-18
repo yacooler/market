@@ -1,10 +1,9 @@
 angular.module('app', []).controller('indexController', function ($scope, $http) {
-    const contextPath = 'http://localhost:8189/market';
-    $scope.currentPage = 0;
+    const contextPath = 'http://localhost:8189/market/api/v1';
+    $scope.currentPage = 1;
 
 
     $scope.fillTable = function () {
-
         $http({
             url: contextPath + '/products',
             method: 'GET',
