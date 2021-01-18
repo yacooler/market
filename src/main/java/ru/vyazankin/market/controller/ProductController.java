@@ -5,14 +5,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
+import ru.vyazankin.market.bean.Cart;
 import ru.vyazankin.market.dto.ProductDto;
+import ru.vyazankin.market.entity.Product;
 import ru.vyazankin.market.service.ProductService;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;
+    private final Cart cart;
 
 
     @GetMapping
@@ -26,6 +32,8 @@ public class ProductController {
     public ProductDto getProductById(@PathVariable Long id){
         return productService.findProductById(id).get();
     }
+
+
 
     @DeleteMapping("/{id}")
     public void deleteProductById(@PathVariable Long id){
@@ -42,5 +50,19 @@ public class ProductController {
         return productService.saveOrUpdate(productDTO);
     }
 
+    @GetMapping("/cart")
+    public Map<Product, Integer> getCart(){
+        return cart.getProducts();
+    }
+
+    @GetMapping("/cart/add/{id}")
+    public void addProductToCart(@PathVariable Long id){
+        cart.addProductToCart(productService.findRealProductById(id).get());
+    }
+
+    @GetMapping("/cart/remove/{id}")
+    public void removeProductFromCart(@PathVariable Long id){
+        cart.removeProductFromCart(productService.findRealProductById(id).get());
+    }
 
 }

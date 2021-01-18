@@ -25,6 +25,10 @@ public class ProductService {
        return productRepository.findById(id).map(ProductDto::new);
     }
 
+    public Optional<Product> findRealProductById(Long id){
+        return productRepository.findById(id);
+    }
+
     public ProductDto saveOrUpdate(ProductDto productDTO){
         Product product;
         if (productDTO.getId() != null && productRepository.existsById(productDTO.getId())){
