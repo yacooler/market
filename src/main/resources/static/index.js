@@ -29,8 +29,6 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
             for(var cartItem in $scope.Cart.items){
                 $scope.Cart.items[cartItem].itemsPrice = $scope.Cart.items[cartItem].price * $scope.Cart.items[cartItem].count;
                 $scope.Cart.totalPrice = $scope.Cart.totalPrice + $scope.Cart.items[cartItem].itemsPrice;
-                console.log($scope.Cart.items[cartItem]);
-                console.log($scope.Cart.totalPrice);
             }
 
         })
