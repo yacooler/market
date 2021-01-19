@@ -18,7 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;
-    private final Cart cart;
+
 
 
     @GetMapping
@@ -32,8 +32,6 @@ public class ProductController {
     public ProductDto getProductById(@PathVariable Long id){
         return productService.findProductById(id).get();
     }
-
-
 
     @DeleteMapping("/{id}")
     public void deleteProductById(@PathVariable Long id){
@@ -50,19 +48,6 @@ public class ProductController {
         return productService.saveOrUpdate(productDTO);
     }
 
-    @GetMapping("/cart")
-    public Map<Product, Integer> getCart(){
-        return cart.getProducts();
-    }
 
-    @GetMapping("/cart/add/{id}")
-    public void addProductToCart(@PathVariable Long id){
-        cart.addProductToCart(productService.findRealProductById(id).get());
-    }
-
-    @GetMapping("/cart/remove/{id}")
-    public void removeProductFromCart(@PathVariable Long id){
-        cart.removeProductFromCart(productService.findRealProductById(id).get());
-    }
 
 }

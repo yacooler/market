@@ -2,11 +2,15 @@ package ru.vyazankin.market.bean;
 
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.vyazankin.market.dto.CartItemDto;
+import ru.vyazankin.market.dto.ProductDto;
 import ru.vyazankin.market.entity.Product;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -28,7 +32,13 @@ public class Cart {
         products.computeIfPresent(product, (prod, count) -> count == 1 ? null : --count);
     }
 
-    public Map<Product, Integer> getProducts(){
-        return products;
+    public List<CartItemDto> getCartItemDtos(){
+        return products.entrySet().stream()
+                .map(entry -> new CartItemDto(
+                        entry.getKey().getId(),
+                        entry.getKey().getTitle(),
+                        entry.getKey().getPrice(),
+                        entry.getValue()))
+                .collect(Collectors.toList());
     }
 }
