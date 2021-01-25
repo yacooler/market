@@ -1,44 +1,68 @@
 package ru.vyazankin.market.bean;
 
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.vyazankin.market.dto.CartItemDto;
-import ru.vyazankin.market.dto.ProductDto;
-import ru.vyazankin.market.entity.Product;
+import ru.vyazankin.market.exceptions.ResourceNotFoundException;
+import ru.vyazankin.market.model.CartItem;
+import ru.vyazankin.market.model.Product;
+import ru.vyazankin.market.service.ProductService;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.persistence.criteria.CriteriaBuilder;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
 @Component
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class Cart {
-    private Map<Product, Integer> products;
+
+    private final ProductService productService;
+
+    @Getter
+    private Set<CartItem> cartItemSet;
+    @Getter
+    private BigDecimal totalCartPrice;
 
     @PostConstruct
     private void init(){
-        products = new HashMap<>();
+        cartItemSet = new HashSet<>();
+        totalCartPrice = BigDecimal.ZERO;
     }
 
-    public void addProductToCart(Product product){
-        products.compute(product, (prod, count) -> count == null ? 1 : ++count);
+    public void addProductToCart(Long productId){
+        //Получаем продукт из корзины.
+        CartItem item = cartItemSet.stream().filter(ci -> ci.getProductId().equals(productId)).findAny()
+                    .orElseGet(() -> {
+                        //если продукта нет - формируем новый
+                        Product product = productService.findRealProductById(productId).orElseThrow( ()-> new ResourceNotFoundException("Не удалось найти продукт с id = " + productId));
+                        CartItem cartItem = new CartItem(product.getId(), product.getTitle(), product.getPrice(), 0, BigDecimal.ZERO);
+                        cartItemSet.add(cartItem);
+                        return cartItem;
+                    }).incQuantityAndRecalc();
+
+        totalCartPrice = totalCartPrice.add(item.getPrice());
     }
 
-    public void removeProductFromCart(Product product){
-        //если результат лямбды null - автоматически выполнится remove(product)
-        products.computeIfPresent(product, (prod, count) -> count == 1 ? null : --count);
+    public void removeProductFromCart(Long productId){
+        Optional<CartItem> cartItem = cartItemSet.stream().filter(ci -> ci.getProductId().equals(productId)).findAny();
+        if (cartItem.isEmpty()) return;
+        CartItem item = cartItem.get();
+
+        item.decQuantityAndRecalc();
+        totalCartPrice = totalCartPrice.subtract(item.getPrice());
+
+        if (item.getQuantity() == 0) {
+            cartItemSet.remove(item);
+        };
     }
 
-    public List<CartItemDto> getCartItemDtos(){
-        return products.entrySet().stream()
-                .map(entry -> new CartItemDto(
-                        entry.getKey().getId(),
-                        entry.getKey().getTitle(),
-                        entry.getKey().getPrice(),
-                        entry.getValue()))
-                .collect(Collectors.toList());
+    public void clear(){
+        cartItemSet.clear();
+        totalCartPrice = BigDecimal.ZERO;
     }
+
 }

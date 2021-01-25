@@ -2,7 +2,7 @@ package ru.vyazankin.market.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.vyazankin.market.entity.Product;
+import ru.vyazankin.market.model.Product;
 
 import java.math.BigDecimal;
 

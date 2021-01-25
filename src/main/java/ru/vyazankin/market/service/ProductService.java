@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.vyazankin.market.dto.ProductDto;
-import ru.vyazankin.market.entity.Product;
+import ru.vyazankin.market.model.Product;
 import ru.vyazankin.market.repository.ProductRepository;
 
 import java.util.List;

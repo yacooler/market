@@ -5,13 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
-import ru.vyazankin.market.bean.Cart;
 import ru.vyazankin.market.dto.ProductDto;
-import ru.vyazankin.market.entity.Product;
 import ru.vyazankin.market.service.ProductService;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/products")

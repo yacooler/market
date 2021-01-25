@@ -1,6 +1,7 @@
 angular.module('app', []).controller('indexController', function ($scope, $http) {
     const contextPath = 'http://localhost:8189/market/api/v1';
     $scope.currentPage = 1;
+    $scope.allowClearCart = false;
 
 
     $scope.fillTable = function () {
@@ -22,15 +23,8 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
             method: 'GET'
             })
         .then(function (response) {
-            $scope.Cart = {}
-            $scope.Cart.items = response.data;
-            $scope.Cart.totalPrice = 0;
-
-            for(var cartItem in $scope.Cart.items){
-                $scope.Cart.items[cartItem].itemsPrice = $scope.Cart.items[cartItem].price * $scope.Cart.items[cartItem].count;
-                $scope.Cart.totalPrice = $scope.Cart.totalPrice + $scope.Cart.items[cartItem].itemsPrice;
-            }
-
+            $scope.Cart = response.data;
+            $scope.allowClearCart = false;
         })
     }
 
@@ -68,11 +62,8 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
     $scope.cartAddProduct = function (productId){
         $http(
             {
-                url: contextPath + "/cart",
-                method: 'POST',
-                params: {
-                    id: productId
-                }
+                url: contextPath + "/cart/add/" + productId,
+                method: 'GET'
             })
             .then(function (){
                 $scope.fillCart();
@@ -80,14 +71,32 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
     }
 
 
-    $scope.cartRemoveProduct = function(id) {
-        $http.delete(contextPath + '/cart/' + id)
+    $scope.cartRemoveProduct = function(productId) {
+        $http(
+            {
+                url: contextPath + "/cart/remove/" + productId,
+                method: 'GET'
+            })
             .then(function (){
                 $scope.fillCart();
             })
     }
 
+    $scope.setAllowClearCart = function (){
+        $scope.allowClearCart = true;
+    }
 
+    $scope.cartClear = function (){
+        $http(
+            {
+                url: contextPath + "/cart/clear",
+                method: 'GET'
+            })
+            .then(function (){
+                $scope.fillCart();
+
+            });
+    }
 
     $scope.fillTable();
     $scope.fillCart();
