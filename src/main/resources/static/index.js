@@ -9,12 +9,30 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
             method: 'GET',
             params: {
                 page: $scope.currentPage,
-                products: 10
+                products: 5
             }
         }).then(function (response) {
             $scope.ProductsPage = response.data;
         });
     };
+
+    $scope.fillCart = function (){
+        $http({
+            url: contextPath + '/cart',
+            method: 'GET'
+            })
+        .then(function (response) {
+            $scope.Cart = {}
+            $scope.Cart.items = response.data;
+            $scope.Cart.totalPrice = 0;
+
+            for(var cartItem in $scope.Cart.items){
+                $scope.Cart.items[cartItem].itemsPrice = $scope.Cart.items[cartItem].price * $scope.Cart.items[cartItem].count;
+                $scope.Cart.totalPrice = $scope.Cart.totalPrice + $scope.Cart.items[cartItem].itemsPrice;
+            }
+
+        })
+    }
 
     $scope.submitCreateNewProduct = function () {
         $http.post(contextPath + '/products', $scope.newProduct)
@@ -47,5 +65,31 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
         }
     }
 
+    $scope.cartAddProduct = function (productId){
+        $http(
+            {
+                url: contextPath + "/cart",
+                method: 'POST',
+                params: {
+                    id: productId
+                }
+            })
+            .then(function (){
+                $scope.fillCart();
+            })
+    }
+
+
+    $scope.cartRemoveProduct = function(id) {
+        $http.delete(contextPath + '/cart/' + id)
+            .then(function (){
+                $scope.fillCart();
+            })
+    }
+
+
+
     $scope.fillTable();
+    $scope.fillCart();
+
 });
