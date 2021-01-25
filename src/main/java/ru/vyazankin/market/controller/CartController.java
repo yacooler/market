@@ -3,13 +3,11 @@ package ru.vyazankin.market.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.vyazankin.market.bean.Cart;
-import ru.vyazankin.market.dto.CartItemDto;
-import ru.vyazankin.market.dto.ProductDto;
-import ru.vyazankin.market.entity.Product;
+import ru.vyazankin.market.dto.CartDto;
+import ru.vyazankin.market.model.CartItem;
 import ru.vyazankin.market.service.ProductService;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/cart")
@@ -20,17 +18,22 @@ public class CartController {
 
 
     @GetMapping()
-    public List<CartItemDto> getCart(){
-        return cart.getCartItemDtos();
+    public CartDto getCart(){
+        return new CartDto(cart);
     }
 
-    @PostMapping()
-    public void addProductToCart(@RequestParam Long id){
-        cart.addProductToCart(productService.findRealProductById(id).get());
+    @GetMapping("/add/{id}")
+    public void addProductToCart(@PathVariable Long id){
+        cart.addProductToCart(id);
     }
 
-    @DeleteMapping("/{id}")
+    @GetMapping("/remove/{id}")
     public void removeProductFromCart(@PathVariable Long id){
-        cart.removeProductFromCart(productService.findRealProductById(id).get());
+        cart.removeProductFromCart(id);
+    }
+
+    @GetMapping("/clear")
+    public void clearCart(){
+        cart.clear();
     }
 }
