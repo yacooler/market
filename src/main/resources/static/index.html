@@ -15,81 +15,104 @@
 <body>
 
 <div class="container" ng-controller="indexController">
-    <h1>Market</h1>
+    <div class="d-flex justify-content-between">
+        <h1>Market</h1>
+        <h3 ng-if="isUserLoggedIn()">Вы вошли как: {{user.username}}</h3>
+    </div>
 
-    <h3>Список товаров</h3>
 
-    <table class="table table-hover" cellpadding="0" cellspacing="0">
-        <thead class="thead-light">
-        <tr>
-            <td>Название</td>
-            <td>Цена</td>
-            <td></td>
-        </tr>
-        </thead>
-        <tbody>
-        <tr ng-repeat="p in ProductsPage.content">
-            <td>{{p.title}}</td>
-            <td>{{p.price}}</td>
-            <td>
-                <button class="btn btn-primary" ng-click="cartAddProduct(p.id)">Добавить в корзину</button>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div ng-if="!isUserLoggedIn()">
+        <form class="sign-in" ng-submit = "authorizationRequest()">
+            <div class="form-group">
+                <label for="loginInput">Login</label>
+                <input type="text" class="form-control" id="loginInput" aria-describedby="loginHelp" placeholder="Enter login" ng-model="user.username">
+                <small id="loginHelp" class="form-text text-muted">Введите свой логин</small>
+            </div>
+            <div class="form-group">
+                <label for="passwordInput">Password</label>
+                <input type="password" class="form-control" id="passwordInput" aria-describedby="passwordHelp"  placeholder="Password" ng-model="user.password">
+                <small id="passwordHelp" class="form-text text-muted">Введите свой пароль</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Войти</button>
+        </form>
+    </div>
 
-    <nav aria-label="Page navigation">
-        <ul class="pagination">
-            <li class="page-item" ng-click="previousPage()"><a class="page-link" href="#">Previous</a></li>
-            <li class="page-item" ng-click="fillTable()"><a class="page-link" href="#">{{currentPage}}</a></li>
-            <li class="page-item" ng-click="nextPage()"><a class="page-link" href="#">Next</a></li>
-        </ul>
-    </nav>
-
-    <h3 ng-show="Cart.totalPrice == 0">Корзина пуста!</h3>
-
-    <div ng-show="Cart.totalPrice != 0">
-        <h3>Корзина</h3>
+    <div ng-if="isUserLoggedIn()">
+        <h3>Список товаров к покупке</h3>
 
         <table class="table table-hover" cellpadding="0" cellspacing="0">
             <thead class="thead-light">
             <tr>
                 <td>Название</td>
-                <td>Цена за единицу</td>
-                <td>Количество</td>
-                <td>Стоимость</td>
+                <td>Цена</td>
+                <td></td>
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="ci in Cart.cartItems">
-                <td>{{ci.title}}</td>
-                <td>{{ci.price}}</td>
+            <tr ng-repeat="p in ProductsPage.content">
+                <td>{{p.title}}</td>
+                <td>{{p.price}}</td>
                 <td>
-                    <div class="input-group">
-                        <button class="btn btn-primary" type="button" ng-click="cartRemoveProduct(ci.productId)">-</button>
-                        <input type="text" class="form-control" placeholder="0" aria-label="" value="{{ci.quantity}}">
-                        <button class="btn btn-primary" type="button" ng-click="cartAddProduct(ci.productId)">+</button>
-                    </div>
+                    <button class="btn btn-primary" ng-click="cartAddProduct(p.id)">Добавить в корзину</button>
                 </td>
-                <td>{{ci.itemsPrice}}</td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>{{Cart.totalPrice}}</td>
             </tr>
             </tbody>
         </table>
-        <button class="btn-primary btn-sm" type="button" ng-click = "setAllowClearCart()">Очистить корзину</button>
 
-        <div ng-show="allowClearCart == true">
-            Нажмите Да, чтобы подтвердить очистку корзины!
-            <button class="btn-danger btn-sm" type="button" ng-click = "cartClear()">Да</button>
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <li class="page-item" ng-click="previousPage()"><a class="page-link" href="#">Previous</a></li>
+                <li class="page-item" ng-click="fillTable()"><a class="page-link" href="#">{{currentPage}}</a></li>
+                <li class="page-item" ng-click="nextPage()"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </nav>
+
+        <h3 ng-show="Cart.totalPrice == 0">Корзина пуста!</h3>
+
+        <div ng-show="Cart.totalPrice != 0">
+            <h3>Корзина</h3>
+
+            <table class="table table-hover" cellpadding="0" cellspacing="0">
+                <thead class="thead-light">
+                <tr>
+                    <td>Название</td>
+                    <td>Цена за единицу</td>
+                    <td>Количество</td>
+                    <td>Стоимость</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="ci in Cart.cartItems">
+                    <td>{{ci.title}}</td>
+                    <td>{{ci.price}}</td>
+                    <td width="150px">
+                        <div class="input-group">
+                            <button class="btn btn-primary" type="button" ng-click="cartRemoveProduct(ci.productId)">-</button>
+                            <input type="text" class="form-control" placeholder="0" aria-label="" value="{{ci.quantity}}">
+                            <button class="btn btn-primary" type="button" ng-click="cartAddProduct(ci.productId)">+</button>
+                        </div>
+                    </td>
+                    <td>{{ci.itemsPrice}}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>{{Cart.totalPrice}}</td>
+                </tr>
+                </tbody>
+            </table>
+            <button class="btn-primary btn-sm" type="button" ng-click = "makeOrder()">Заказать</button>
+
+            <button class="btn-primary btn-sm" type="button" ng-click = "setAllowClearCart()">Очистить корзину</button>
+
+            <div ng-show="allowClearCart == true">
+                Нажмите Да, чтобы подтвердить очистку корзины!
+                <button class="btn-danger btn-sm" type="button" ng-click = "cartClear()">Да</button>
+            </div>
+
         </div>
-
     </div>
-
     
 </div>
 </body>

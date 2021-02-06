@@ -3,7 +3,10 @@ package ru.vyazankin.market.bean;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
 import ru.vyazankin.market.exceptions.ResourceNotFoundException;
 import ru.vyazankin.market.model.CartItem;
 import ru.vyazankin.market.model.Product;
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
+@Scope(value = WebApplicationContext.SCOPE_SESSION, proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class Cart {
 
     private final ProductService productService;

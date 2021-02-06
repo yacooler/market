@@ -1,12 +1,16 @@
 angular.module('app', []).controller('indexController', function ($scope, $http) {
-    const contextPath = 'http://localhost:8189/market/api/v1';
+    const contentPath = 'http://localhost:8189/market/'
+    let appPath = contentPath + 'api/v1';
+    let authPath = contentPath +'auth'
+
     $scope.currentPage = 1;
     $scope.allowClearCart = false;
-
+    $scope.authPresent = false;
+    $scope.user = {name:'',password:''};
 
     $scope.fillTable = function () {
         $http({
-            url: contextPath + '/products',
+            url: appPath + '/products',
             method: 'GET',
             params: {
                 page: $scope.currentPage,
@@ -19,7 +23,7 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
 
     $scope.fillCart = function (){
         $http({
-            url: contextPath + '/cart',
+            url: appPath + '/cart',
             method: 'GET'
             })
         .then(function (response) {
@@ -29,7 +33,7 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
     }
 
     $scope.submitCreateNewProduct = function () {
-        $http.post(contextPath + '/products', $scope.newProduct)
+        $http.post(appPath + '/products', $scope.newProduct)
             .then(function (response) {
                 $scope.newProduct = null;
                 $scope.fillTable();
@@ -37,7 +41,7 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
     };
 
     $scope.deleteProductById = function(id) {
-        $http.delete(contextPath + '/products/' + id)
+        $http.delete(appPath + '/products/' + id)
             .then(function (){
                 $scope.fillTable();
             })
@@ -62,7 +66,7 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
     $scope.cartAddProduct = function (productId){
         $http(
             {
-                url: contextPath + "/cart/add/" + productId,
+                url: appPath + "/cart/add/" + productId,
                 method: 'GET'
             })
             .then(function (){
@@ -74,7 +78,7 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
     $scope.cartRemoveProduct = function(productId) {
         $http(
             {
-                url: contextPath + "/cart/remove/" + productId,
+                url: appPath + "/cart/remove/" + productId,
                 method: 'GET'
             })
             .then(function (){
@@ -89,13 +93,48 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
     $scope.cartClear = function (){
         $http(
             {
-                url: contextPath + "/cart/clear",
+                url: appPath + "/cart/clear",
                 method: 'GET'
             })
             .then(function (){
                 $scope.fillCart();
 
             });
+    }
+
+    $scope.isUserLoggedIn = function (){
+        return $scope.authPresent;
+    }
+
+    $scope.authorizationRequest = function (){
+        $http.post(authPath,$scope.user)
+            .then(
+                function successCallback(response) {
+                    if (response.data.token) {
+                        $http.defaults.headers.common.Authorization = 'Bearer ' + response.data.token;
+                        $scope.user.password = null;
+                        $scope.authorized = true;
+                        $scope.fillTable();
+                        $scope.authPresent = true;
+                    }
+                },
+                function errorCallback(response) {
+                    window.alert("Error");
+                    $scope.authPresent = false;
+                });
+    }
+
+    $scope.makeOrder = function (){
+        $http(
+            {
+                url: appPath + '/cart/makeorder',
+                method: 'GET'
+            })
+            .then(
+                function (){
+                    alert("Заказ сделан!")
+                }
+            );
     }
 
     $scope.fillTable();
