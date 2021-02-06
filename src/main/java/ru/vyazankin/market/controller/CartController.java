@@ -7,6 +7,7 @@ import ru.vyazankin.market.dto.CartDto;
 import ru.vyazankin.market.model.CartItem;
 import ru.vyazankin.market.service.ProductService;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -15,7 +16,6 @@ import java.util.List;
 public class CartController {
     private final ProductService productService;
     private final Cart cart;
-
 
     @GetMapping()
     public CartDto getCart(){
@@ -36,4 +36,11 @@ public class CartController {
     public void clearCart(){
         cart.clear();
     }
+
+    @GetMapping("/makeorder")
+    public void makeOrder(Principal principal){
+        //т.к. персональных скидок у нас нет, Principal нам явно пригождается первый раз при заказе
+        System.out.println("Попытка сделать заказ от имени: " + principal.getName());
+    }
+
 }

@@ -8,7 +8,6 @@ import java.util.Objects;
 
 @Data
 @AllArgsConstructor
-
 public class CartItem {
 
     private Long productId;

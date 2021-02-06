@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.vyazankin.market.model.Product;
 
+import javax.persistence.OneToMany;
 import java.math.BigDecimal;
 
 @Data
@@ -19,6 +20,7 @@ public class ProductDto {
         this.title = product.getTitle();
         this.price = product.getPrice();
     }
+
 
     public Product toEntity(){
         return updateEntity(new Product());
