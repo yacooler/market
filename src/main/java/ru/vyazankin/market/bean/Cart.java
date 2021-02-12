@@ -1,72 +1,98 @@
 package ru.vyazankin.market.bean;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 import ru.vyazankin.market.exceptions.ResourceNotFoundException;
-import ru.vyazankin.market.model.CartItem;
+import ru.vyazankin.market.model.OrderItem;
 import ru.vyazankin.market.model.Product;
 import ru.vyazankin.market.service.ProductService;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Component
 @RequiredArgsConstructor
 @Scope(value = WebApplicationContext.SCOPE_SESSION, proxyMode = ScopedProxyMode.TARGET_CLASS)
+@Slf4j
 public class Cart {
 
     private final ProductService productService;
 
+
     @Getter
-    private Set<CartItem> cartItemSet;
+    private Set<OrderItem> orderItems;
+
     @Getter
     private BigDecimal totalCartPrice;
 
+    @Getter
+    private Integer totalItems;
+
+
     @PostConstruct
     private void init(){
-        cartItemSet = new HashSet<>();
+        orderItems = new HashSet<>();
         totalCartPrice = BigDecimal.ZERO;
+        totalItems = 0;
     }
 
     public void addProductToCart(Long productId){
-        //Получаем продукт из корзины.
-        CartItem item = cartItemSet.stream().filter(ci -> ci.getProductId().equals(productId)).findAny()
-                    .orElseGet(() -> {
-                        //если продукта нет - формируем новый
-                        Product product = productService.findRealProductById(productId).orElseThrow( ()-> new ResourceNotFoundException("Не удалось найти продукт с id = " + productId));
-                        CartItem cartItem = new CartItem(product.getId(), product.getTitle(), product.getPrice(), 0, BigDecimal.ZERO);
-                        cartItemSet.add(cartItem);
-                        return cartItem;
-                    }).incQuantityAndRecalc();
 
-        totalCartPrice = totalCartPrice.add(item.getPrice());
+        Product product = productService.findRealProductById(productId)
+                .orElseThrow(()-> new ResourceNotFoundException("Не удалось найти продукт с id = " + productId));
+
+        OrderItem orderItem = orderItems.stream()
+                .filter(oi -> oi.getProduct().equals(product)).findAny()  //Нашли OrderItem с нужным продуктом
+                .orElseGet( () -> new OrderItem(product,0,BigDecimal.ZERO)); //Не нашли - добавляем новый
+
+        orderItem.setTotalItems(orderItem.getTotalItems() + 1);
+        orderItem.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf(orderItem.getTotalItems())));
+
+        if (orderItem.getTotalItems().equals(1)) {
+            orderItems.add(orderItem);
+        }
+
+        //log.info(orderItem.toString());
+
+        totalCartPrice = totalCartPrice.add(product.getPrice());
+        totalItems++;
+
     }
 
     public void removeProductFromCart(Long productId){
-        Optional<CartItem> cartItem = cartItemSet.stream().filter(ci -> ci.getProductId().equals(productId)).findAny();
-        if (cartItem.isEmpty()) return;
-        CartItem item = cartItem.get();
 
-        item.decQuantityAndRecalc();
-        totalCartPrice = totalCartPrice.subtract(item.getPrice());
+        Product product = productService.findRealProductById(productId)
+                .orElseThrow(()-> new ResourceNotFoundException("Не удалось найти продукт с id = " + productId));
 
-        if (item.getQuantity() == 0) {
-            cartItemSet.remove(item);
-        };
+        Optional<OrderItem> optionalOrderItem = orderItems.stream()
+                .filter(oi -> oi.getProduct().equals(product)).findAny();
+
+        if (optionalOrderItem.isEmpty()) return;
+
+        OrderItem orderItem = optionalOrderItem.get();
+        orderItem.setTotalItems(orderItem.getTotalItems() - 1);
+        orderItem.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf(orderItem.getTotalItems())));
+        totalCartPrice = totalCartPrice.subtract(product.getPrice());
+
+        if (orderItem.getTotalItems().equals(0)){
+            orderItems.remove(orderItem);
+        }
+        totalItems--;
     }
 
     public void clear(){
-        cartItemSet.clear();
+        orderItems.clear();
         totalCartPrice = BigDecimal.ZERO;
+        totalItems = 0;
     }
 
 }

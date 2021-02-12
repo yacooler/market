@@ -18,10 +18,12 @@
     <div class="d-flex justify-content-between">
         <h1>Market</h1>
         <h3 ng-if="isUserLoggedIn()">Вы вошли как: {{user.username}}</h3>
+        <button ng-if="!isUserLoggedIn()" type="button" class="btn btn-primary" ng-click="showNewUserPage()">Зарегистрироваться</button>
     </div>
 
 
-    <div ng-if="!isUserLoggedIn()">
+    <div ng-if="!isUserLoggedIn() && !newUserPage">
+        <h3>Вход:</h3>
         <form class="sign-in" ng-submit = "authorizationRequest()">
             <div class="form-group">
                 <label for="loginInput">Login</label>
@@ -36,6 +38,36 @@
             <button type="submit" class="btn btn-primary">Войти</button>
         </form>
     </div>
+
+
+    <div ng-if="newUserPage">
+        <h3>Регистрация нового пользователя:</h3>
+        <form class="sign-up" ng-submit = "newUserRequest()">
+            <div class="form-group">
+                <label for="createLoginInput">Login</label>
+                <input type="text" class="form-control" id="createLoginInput" aria-describedby="createLoginHelp" placeholder="Enter new login" ng-model="newUser.name">
+                <small id="createLoginHelp" class="form-text text-muted">Введите логин</small>
+            </div>
+            <div class="form-group">
+                <label for="createPasswordInput">Password</label>
+                <input type="password" class="form-control" id="createPasswordInput" aria-describedby="createPasswordHelp"  placeholder="Password" ng-model="newUser.password">
+                <small id="createPasswordHelp" class="form-text text-muted">Введите пароль</small>
+            </div>
+            <div class="form-group">
+                <label for="createEmailInput">Email</label>
+                <input type="email" class="form-control" id="createEmailInput" aria-describedby="createEmailHelp"  placeholder="Email" ng-model="newUser.email">
+                <small id="createEmailHelp" class="form-text text-muted">Введите свой почтовый адрес</small>
+            </div>
+            <div class="form-group">
+                <span class="text-danger">{{newUser.error}}</span>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Создать</button>
+                <button type="button" class="btn btn-primary" ng-click="hideNewUserPage()">Отмена</button>
+            </div>
+        </form>
+    </div>
+
 
     <div ng-if="isUserLoggedIn()">
         <h3>Список товаров к покупке</h3>
@@ -82,7 +114,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="ci in Cart.cartItems">
+                <tr ng-repeat="ci in Cart.cartItemDtos">
                     <td>{{ci.title}}</td>
                     <td>{{ci.price}}</td>
                     <td width="150px">
@@ -102,7 +134,17 @@
                 </tr>
                 </tbody>
             </table>
-            <button class="btn-primary btn-sm" type="button" ng-click = "makeOrder()">Заказать</button>
+
+
+            <div class="form-group">
+                <label for="addressInput">Адрес</label>
+                <input type="text" class="form-control" id="addressInput" aria-describedby="addressHelp" placeholder="Моксва, Мавзолей, д.1" ng-model="orderDetails.deliveryAddress">
+                <small id="addressHelp" class="form-text text-muted">Введите адрес доставки</small>
+            </div>
+            <button class="btn-primary btn-sm" type="submit" ng-click="makeOrder()">Заказать</button>
+
+
+            <br>
 
             <button class="btn-primary btn-sm" type="button" ng-click = "setAllowClearCart()">Очистить корзину</button>
 
@@ -112,6 +154,28 @@
             </div>
 
         </div>
+
+
+        <h3>Предыдущие заказы</h3>
+        <table class="table table-hover" cellpadding="0" cellspacing="0">
+            <thead class="thead-light">
+            <tr>
+                <td>Номер</td>
+                <td>Количество позиций</td>
+                <td>Общая стоимость</td>
+                <td>Адрес доставки</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="ord in orderList">
+                <td>{{ord.id}}</td>
+                <td>{{ord.totalItems}}</td>
+                <td>{{ord.totalPrice}}</td>
+                <td>{{ord.deliveryAddress}}</td>
+            </tr>
+            </tbody>
+        </table>
+
     </div>
     
 </div>
