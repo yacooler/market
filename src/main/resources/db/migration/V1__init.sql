@@ -77,6 +77,7 @@ create table orders(
     user_id     bigint  references users(id),
     total_items integer not null,
     total_price numeric(12,2) not null,
+    delivery_address varchar(255) null,
 
     created_at              timestamp default current_timestamp,
     updated_at              timestamp default current_timestamp,
