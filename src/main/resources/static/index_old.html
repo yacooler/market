@@ -1,0 +1,229 @@
+<!doctype html>
+
+<html ng-app="app">
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.0/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.0/angular-route.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.11/ngStorage.min.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+
+            <div class="collapse navbar-collapse" id="navbar">
+
+                <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
+
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Главная</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Каталог</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Корзина</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Заказы</a>
+                    </li>
+
+                </ul>
+
+                <!--Ввод пароля-->
+                <form class="d-flex">
+                    <input class="form-control mr-2" type="text" placeholder="Логин" aria-label="login">
+                    <input class="form-control mr-2" type="password" placeholder="Пароль" aria-label="password">
+                    <button class="btn btn-outline-success mr-2" type="submit">Войти</button>
+                    <button class="btn btn-outline-success mr-2" type="submit">Выйти</button>
+                    <button class="btn btn-outline-secondary mr-2" type="button">Регистрация</button>
+                </form>
+
+            </div>
+
+        </div>
+    </nav>
+</div>
+
+
+
+
+
+<div class="container" ng-controller="indexController">
+    <div class="d-flex justify-content-between">
+        <h1>Market</h1>
+        <h3 ng-if="isUserLoggedIn()">Вы вошли как: {{user.username}}</h3>
+        <button ng-if="!isUserLoggedIn()" type="button" class="btn btn-primary" ng-click="showNewUserPage()">Зарегистрироваться</button>
+    </div>
+
+
+    <div ng-if="!isUserLoggedIn() && !newUserPage">
+        <h3>Вход:</h3>
+        <form class="sign-in" ng-submit = "authorizationRequest()">
+            <div class="form-group">
+                <label for="loginInput">Login</label>
+                <input type="text" class="form-control" id="loginInput" aria-describedby="loginHelp" placeholder="Enter login" ng-model="user.username">
+                <small id="loginHelp" class="form-text text-muted">Введите свой логин</small>
+            </div>
+            <div class="form-group">
+                <label for="passwordInput">Password</label>
+                <input type="password" class="form-control" id="passwordInput" aria-describedby="passwordHelp"  placeholder="Password" ng-model="user.password">
+                <small id="passwordHelp" class="form-text text-muted">Введите свой пароль</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Войти</button>
+        </form>
+    </div>
+
+
+    <div ng-if="newUserPage">
+        <h3>Регистрация нового пользователя:</h3>
+        <form class="sign-up" ng-submit = "newUserRequest()">
+            <div class="form-group">
+                <label for="createLoginInput">Login</label>
+                <input type="text" class="form-control" id="createLoginInput" aria-describedby="createLoginHelp" placeholder="Enter new login" ng-model="newUser.name">
+                <small id="createLoginHelp" class="form-text text-muted">Введите логин</small>
+            </div>
+            <div class="form-group">
+                <label for="createPasswordInput">Password</label>
+                <input type="password" class="form-control" id="createPasswordInput" aria-describedby="createPasswordHelp"  placeholder="Password" ng-model="newUser.password">
+                <small id="createPasswordHelp" class="form-text text-muted">Введите пароль</small>
+            </div>
+            <div class="form-group">
+                <label for="createEmailInput">Email</label>
+                <input type="email" class="form-control" id="createEmailInput" aria-describedby="createEmailHelp"  placeholder="Email" ng-model="newUser.email">
+                <small id="createEmailHelp" class="form-text text-muted">Введите свой почтовый адрес</small>
+            </div>
+            <div class="form-group">
+                <span class="text-danger">{{newUser.error}}</span>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Создать</button>
+                <button type="button" class="btn btn-primary" ng-click="hideNewUserPage()">Отмена</button>
+            </div>
+        </form>
+    </div>
+
+
+    <div ng-if="isUserLoggedIn()">
+        <h3>Список товаров к покупке</h3>
+
+        <table class="table table-hover" cellpadding="0" cellspacing="0">
+            <thead class="thead-light">
+            <tr>
+                <td>Название</td>
+                <td>Цена</td>
+                <td></td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="p in ProductsPage.content">
+                <td>{{p.title}}</td>
+                <td>{{p.price}}</td>
+                <td>
+                    <button class="btn btn-primary" ng-click="cartAddProduct(p.id)">Добавить в корзину</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <li class="page-item" ng-click="previousPage()"><a class="page-link" href="#">Previous</a></li>
+                <li class="page-item" ng-click="fillTable()"><a class="page-link" href="#">{{currentPage}}</a></li>
+                <li class="page-item" ng-click="nextPage()"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </nav>
+
+        <h3 ng-show="Cart.totalPrice == 0">Корзина пуста!</h3>
+
+        <div ng-show="Cart.totalPrice != 0">
+            <h3>Корзина</h3>
+
+            <table class="table table-hover" cellpadding="0" cellspacing="0">
+                <thead class="thead-light">
+                <tr>
+                    <td>Название</td>
+                    <td>Цена за единицу</td>
+                    <td>Количество</td>
+                    <td>Стоимость</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="ci in Cart.cartItemDtos">
+                    <td>{{ci.title}}</td>
+                    <td>{{ci.price}}</td>
+                    <td width="150px">
+                        <div class="input-group">
+                            <button class="btn btn-primary" type="button" ng-click="cartRemoveProduct(ci.productId)">-</button>
+                            <input type="text" class="form-control" placeholder="0" aria-label="" value="{{ci.quantity}}">
+                            <button class="btn btn-primary" type="button" ng-click="cartAddProduct(ci.productId)">+</button>
+                        </div>
+                    </td>
+                    <td>{{ci.itemsPrice}}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>{{Cart.totalPrice}}</td>
+                </tr>
+                </tbody>
+            </table>
+
+
+            <div class="form-group">
+                <label for="addressInput">Адрес</label>
+                <input type="text" class="form-control" id="addressInput" aria-describedby="addressHelp" placeholder="Моксва, Мавзолей, д.1" ng-model="orderDetails.deliveryAddress">
+                <small id="addressHelp" class="form-text text-muted">Введите адрес доставки</small>
+            </div>
+            <button class="btn-primary btn-sm" type="submit" ng-click="makeOrder()">Заказать</button>
+
+
+            <br>
+
+            <button class="btn-primary btn-sm" type="button" ng-click = "setAllowClearCart()">Очистить корзину</button>
+
+            <div ng-show="allowClearCart">
+                Нажмите Да, чтобы подтвердить очистку корзины!
+                <button class="btn-danger btn-sm" type="button" ng-click = "cartClear()">Да</button>
+            </div>
+
+        </div>
+
+
+        <h3>Предыдущие заказы</h3>
+        <table class="table table-hover" cellpadding="0" cellspacing="0">
+            <thead class="thead-light">
+            <tr>
+                <td>Номер</td>
+                <td>Количество позиций</td>
+                <td>Общая стоимость</td>
+                <td>Адрес доставки</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="ord in orderList">
+                <td>{{ord.id}}</td>
+                <td>{{ord.totalItems}}</td>
+                <td>{{ord.totalPrice}}</td>
+                <td>{{ord.deliveryAddress}}</td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+    
+</div>
+</body>
+</html>
