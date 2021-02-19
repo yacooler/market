@@ -14,7 +14,6 @@ import ru.vyazankin.market.dto.UserDto;
 import ru.vyazankin.market.exceptions.ResourceNotFoundException;
 import ru.vyazankin.market.model.Role;
 import ru.vyazankin.market.model.User;
-import ru.vyazankin.market.repository.RoleRepository;
 import ru.vyazankin.market.repository.UserRepository;
 
 import java.util.Arrays;

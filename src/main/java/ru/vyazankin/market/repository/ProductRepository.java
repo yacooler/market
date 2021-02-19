@@ -8,4 +8,6 @@ import ru.vyazankin.market.model.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
     public Page<Product> findAll(Pageable pageable);
+
+
 }

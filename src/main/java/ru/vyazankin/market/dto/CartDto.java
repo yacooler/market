@@ -21,5 +21,7 @@ public class CartDto {
                 .collect(Collectors.toList());
 
         totalPrice = cart.getTotalCartPrice();
+
+
     }
 }

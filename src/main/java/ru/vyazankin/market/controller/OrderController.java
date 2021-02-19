@@ -10,6 +10,7 @@ import ru.vyazankin.market.service.OrderService;
 import ru.vyazankin.market.service.UserService;
 
 import java.security.Principal;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -22,6 +23,7 @@ public class OrderController {
 
     @GetMapping
     public List<OrderDto> getOrders(Principal principal){
+        if (principal == null) return Collections.emptyList();
         User user = userService.findByUsername(principal.getName())
                 .orElseThrow( ()-> new ResourceNotFoundException("Не удалось найти пользоватетя с именем " + principal.getName()));
         return orderService.orderParamDtoList(user);
