@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -22,7 +23,31 @@ public class ProfilingMethods {
         methodMap = new HashMap<>();
     }
 
-    @Before("execution(* ru.vyazankin.market.controller..*(..))")
+    @Pointcut("execution(* ru.vyazankin.market.bean..*(..))")
+    public void beansPointcut(){}
+
+    @Pointcut("execution(* ru.vyazankin.market.controller..*(..))")
+    public void controllerPointcut(){}
+
+    @Pointcut("execution(* ru.vyazankin.market.dto..*(..))")
+    public void dtoPointcut(){}
+
+    @Pointcut("execution(* ru.vyazankin.market.model..*(..))")
+    public void modelPointcut(){}
+
+    @Pointcut("execution(* ru.vyazankin.market.repository..*(..))")
+    public void repositoryPointcut(){}
+
+    @Pointcut("execution(* ru.vyazankin.market.service..*(..))")
+    public void servicePointcut(){}
+
+
+    @Pointcut("beansPointcut() || controllerPointcut() || dtoPointcut() " +
+            "|| modelPointcut() || repositoryPointcut() || servicePointcut()")
+    public void allPackagesPointcut(){}
+
+    //@Before("execution(* ru.vyazankin.market.controller..*(..))")
+    @Before("allPackagesPointcut()")
     private void beforeAnyMethod(JoinPoint joinPoint){
         String name = joinPoint.getStaticPart() + "." + joinPoint.getSignature().getName();
 
