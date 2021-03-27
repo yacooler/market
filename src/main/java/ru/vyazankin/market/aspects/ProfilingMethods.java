@@ -11,8 +11,8 @@ import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class ProfilingMethods {
 
     @Getter
